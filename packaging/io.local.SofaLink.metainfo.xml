@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.local.SofaLink</id>
+  <name>SofaLink</name>
+  <summary>PS4 Remote Play with a controller-focused SteamOS setup</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-only</project_license>
+  <description>
+    <p>SofaLink is a custom fork of chiaki-ng with a PS4-focused home screen, live controller detection and an integrated DualShock 4 setup guide.</p>
+    <p>Remote Play, console registration, video, audio and controller handling are provided by the chiaki-ng engine. This is an independent personal build, not an official Sony or chiaki-ng release.</p>
+  </description>
+  <launchable type="desktop-id">io.local.SofaLink.desktop</launchable>
+  <provides><binary>sofalink</binary></provides>
+  <categories><category>Game</category></categories>
+  <content_rating type="oars-1.1"/>
+  <releases><release version="0.1.0" date="2026-10-01"/></releases>
+</component>

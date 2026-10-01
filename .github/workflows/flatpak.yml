@@ -1,0 +1,29 @@
+name: Build SofaLink Flatpak
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  flatpak:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder elfutils
+      - name: Check scripts and metadata
+        run: |
+          bash -n build-flatpak.sh install-flatpak.sh
+          python3 scripts/check-project.py
+      - name: Build x86_64 Flatpak
+        run: dbus-run-session -- bash build-flatpak.sh
+      - name: Save installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: SofaLink-0.1.0-x86_64
+          path: dist/*
+          if-no-files-found: error

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=SofaLink
+GenericName=PS4 Remote Play
+Comment=Play your PS4 from SteamOS with a DualShock 4
+Exec=sofalink
+Icon=io.local.SofaLink
+Terminal=false
+Categories=Game;
+Keywords=PS4;Remote Play;DualShock;Controller;
+StartupNotify=true

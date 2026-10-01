@@ -1,0 +1,6 @@
+#!/bin/sh
+# SPDX-License-Identifier: AGPL-3.0-only
+# Keep SDL's direct DualShock 4 HID support available for touchpad and rumble.
+export SDL_JOYSTICK_HIDAPI_PS4="${SDL_JOYSTICK_HIDAPI_PS4:-1}"
+export SDL_JOYSTICK_HIDAPI_PS4_RUMBLE="${SDL_JOYSTICK_HIDAPI_PS4_RUMBLE:-1}"
+exec /app/bin/chiaki "$@"

@@ -1,0 +1,299 @@
+--- a/gui/src/qml/Main.qml
++++ b/gui/src/qml/Main.qml
+@@ -12,7 +12,7 @@
+     readonly property bool preferSeparateStreamSettingsWindows: Chiaki.window.runtimeRendererBackend === 1 && Chiaki.session
+     property bool useSeparateStreamSettingsWindows: false
+     Material.theme: Material.Dark
+-    Material.accent: "#00a7ff"
++    Material.accent: "#68e2ba"
+ 
+     function controllerButton(name) {
+         let type = "deck";
+@@ -111,6 +111,15 @@
+         stack.pop();
+     }
+ 
++    function showSofaSetup() {
++        stack.push(sofaSetupComponent);
++    }
++
++    Component {
++        id: sofaSetupComponent
++        SofaSetup { }
++    }
++
+     function showMainView() {
+         if(displaySettingsRect.opacity) {
+             displaySettingsRect.opacity = 0.0;
+--- a/gui/src/qml/MainView.qml
++++ b/gui/src/qml/MainView.qml
+@@ -10,19 +10,6 @@
+     id: consolePane
+     StackView.onActivated: {
+         forceActiveFocus(Qt.TabFocusReason);
+-        if(!Chiaki.autoConnect && !root.initialAsk && !Chiaki.window.directStream)
+-        {
+-            root.initialAsk = true;
+-            if(Chiaki.settings.addSteamShortcutAsk && (typeof Chiaki.createSteamShortcut === "function"))
+-                root.showRemindDialog(qsTr("Official Steam artwork + controller layout"), qsTr("Would you like to either create a new non-Steam game for chiaki-ng\nor update an existing non-Steam game with the official artwork and controller layout?") + "\n\n" + qsTr("(Note: If you select no now and want to do this later, click the button or press R3 from the main menu.)"), false, () => root.showSteamShortcutDialog(true));
+-            else if(Chiaki.settings.remotePlayAsk)
+-            {
+-                if(!Chiaki.settings.psnRefreshToken || !Chiaki.settings.psnAuthToken || !Chiaki.settings.psnAuthTokenExpiry || !Chiaki.settings.psnAccountId)
+-                    root.showRemindDialog(qsTr("Remote Play via PSN"), qsTr("Would you like to connect to PSN?\nThis enables:\n- Automatic registration\n- Playing outside of your home network without port forwarding?") + "\n\n" + qsTr("(Note: If you select no now and want to do this later, go to the Config section of the settings.)"), true, () => root.showPSNTokenDialog(false));
+-                else
+-                    Chiaki.settings.remotePlayAsk = false;
+-            }
+-        }
+     }
+     Keys.onUpPressed: {
+         if(hostsView.currentItem && hostsView.currentItem.visible)
+@@ -58,7 +45,7 @@
+             event.accepted = true;
+             break;
+         case Qt.Key_F1:
+-            if (typeof Chiaki.createSteamShortcut === "function") root.showSteamShortcutDialog(false);
++            root.showSofaSetup();
+             event.accepted = true;
+             break;
+         case Qt.Key_F2:
+@@ -70,121 +57,35 @@
+ 
+     ToolBar {
+         id: toolBar
+-        anchors {
+-            top: parent.top
+-            left: parent.left
+-            right: parent.right
+-        }
+-        height: 80
+-
++        anchors { top: parent.top; left: parent.left; right: parent.right }
++        height: 72
+         RowLayout {
+-            anchors {
+-                fill: parent
+-                leftMargin: 10
+-                rightMargin: 10
+-            }
+-
+-            Button {
+-                Layout.fillHeight: true
+-                Layout.preferredWidth: 100
+-                flat: true
+-                text: "×"
+-                font.pixelSize: 60
+-                focusPolicy: Qt.NoFocus
+-                onClicked: Qt.quit()
+-                Material.roundedScale: Material.SmallScale
+-            }
+-
++            anchors.fill: parent
++            anchors.leftMargin: 22
++            anchors.rightMargin: 22
++            spacing: 14
++            Label { text: "SOFALINK"; font.pixelSize: 25; font.bold: true; color: "#68e2ba" }
+             Item { Layout.fillWidth: true }
+-
+-            Button {
+-                Layout.fillHeight: true
+-                Layout.preferredWidth: 350
+-                flat: true
+-                text: "Create Steam Shortcut"
+-                focusPolicy: Qt.NoFocus
+-                onClicked: root.showSteamShortcutDialog(false)
+-                Material.roundedScale: Material.SmallScale
+-                visible: typeof Chiaki.createSteamShortcut === "function"
+-                Image {
+-                    anchors {
+-                        right: parent.right
+-                        verticalCenter: parent.verticalCenter
+-                        leftMargin: 12
+-                    }
+-                    width: 28
+-                    height: 28
+-                    sourceSize: Qt.size(width, height)
+-                    source: "qrc:/icons/l3.svg"
+-                }
+-            }
+-
+-            Button {
+-                Layout.fillHeight: true
+-                Layout.preferredWidth: 400
+-                flat: true
+-                text: "Refresh PSN Hosts"
+-                icon.source: "qrc:/icons/r1.svg"
+-                focusPolicy: Qt.NoFocus
+-                onClicked: Chiaki.refreshPsnToken();
+-                Material.roundedScale: Material.SmallScale
+-                visible: Chiaki.settings.psnAuthToken
+-            }
+-
+-            Button {
+-                Layout.fillHeight: true
+-                Layout.preferredWidth: 400
+-                flat: true
+-                focusPolicy: Qt.NoFocus
+-                Material.roundedScale: Material.SmallScale
+-                visible: !Chiaki.settings.psnAuthToken
+-            }
+-
+-            Button {
+-                Layout.fillHeight: true
+-                Layout.preferredWidth: 300
+-                flat: true
+-                text: "Add Manual Host"
+-                focusPolicy: Qt.NoFocus
+-                onClicked: root.showManualHostDialog()
+-                Material.roundedScale: Material.SmallScale
+-                Image {
+-                    anchors {
+-                        left: parent.left
+-                        verticalCenter: parent.verticalCenter
+-                        leftMargin: 12
+-                    }
+-                    width: 28
+-                    height: 28
+-                    sourceSize: Qt.size(width, height)
+-                    source: "qrc:/icons/r3.svg"
+-                }
+-            }
+-
+-            Button {
+-                id: settingsButton
+-                Layout.fillHeight: true
+-                Layout.preferredWidth: 100
+-                flat: true
+-                icon.source: "qrc:/icons/settings-20px.svg";
+-                icon.width: 50
+-                icon.height: 50
+-                focusPolicy: Qt.NoFocus
+-                onClicked: root.showSettingsDialog()
+-                Material.roundedScale: Material.SmallScale
+-            }
+-        }
++            Button { text: "Setup  /  L3"; focusPolicy: Qt.NoFocus; onClicked: root.showSofaSetup() }
++            Button { text: "Add PS4  /  R3"; focusPolicy: Qt.NoFocus; onClicked: root.showManualHostDialog() }
++            Button { id: settingsButton; text: "Settings  /  Options"; focusPolicy: Qt.NoFocus; onClicked: root.showSettingsDialog() }
++        }
++    }
++    SofaHeader {
++        id: sofaHeader
++        anchors { top: toolBar.bottom; left: parent.left; right: parent.right }
++        height: implicitHeight
+     }
+ 
+     ListView {
+         id: hostsView
+         keyNavigationWraps: true
+         anchors {
+-            top: toolBar.bottom
++            top: sofaHeader.bottom
+             left: parent.left
+             right: parent.right
+             bottom: parent.bottom
+-            bottomMargin: 50
++            bottomMargin: 95
+         }
+         clip: true
+         model: Chiaki.hosts
+@@ -415,23 +316,17 @@
+             bottom: parent.bottom
+             margins: 20
+         }
+-        text: Qt.application.version
+-    }
+-
+-    Image {
+-        id: logoImage
+-        anchors.centerIn: parent
+-        source: "qrc:/icons/chiaking-logo-white.svg"
+-        sourceSize: Qt.size(Math.min(parent.width, parent.height) / 2, Math.min(parent.width, parent.height) / 2)
+-
+-        PropertyAnimation {
+-            target: logoImage
+-            property: "opacity"
+-            from: 0.05
+-            to: 0.20
+-            duration: 1000
+-            easing.type: Easing.OutCubic
+-            running: true
+-        }
++        text: "SofaLink 0.1.0  ·  powered by chiaki-ng " + Qt.application.version
++    }
++
++    Label {
++        anchors.centerIn: hostsView
++        width: hostsView.width - 80
++        visible: hostsView.count === 0
++        horizontalAlignment: Text.AlignHCenter
++        wrapMode: Text.WordWrap
++        text: "Looking for your PS4…\nTurn on Remote Play and connect to the same network.\nPress L3 for setup or R3 to add its IP address."
++        font.pixelSize: 24
++        color: "#a7bbc9"
+     }
+ }
+--- a/gui/src/qml/qml.qrc
++++ b/gui/src/qml/qml.qrc
+@@ -2,6 +2,8 @@
+   <qresource prefix="/">
+     <file>qtquickcontrols2.conf</file>
+     <file>Main.qml</file>
++    <file>SofaSetup.qml</file>
++    <file>SofaHeader.qml</file>
+     <file>MainView.qml</file>
+     <file>StreamView.qml</file>
+     <file>StreamMenuWindow.qml</file>
+--- a/gui/src/qml/SettingsDialog.qml
++++ b/gui/src/qml/SettingsDialog.qml
+@@ -14,7 +14,7 @@
+         PS4,
+         PS5
+     }
+-    property int selectedConsole: SettingsDialog.Console.PS5
++    property int selectedConsole: SettingsDialog.Console.PS4
+     property bool quitControllerMapping: true
+     id: dialog
+     title: qsTr("Settings")
+@@ -3102,7 +3102,7 @@
+                     Layout.preferredWidth: 400
+                     verticalAlignment: Text.AlignTop
+                     wrapMode: Text.Wrap
+-                    text: "<h1>chiaki-ng</h1> by Street Pea, version %1
++                    text: "<h1>SofaLink 0.1.0</h1><p>Custom SteamOS / PS4 edition.</p><h2>Powered by chiaki-ng</h2> by Street Pea, engine version %1
+                         <h2>Fork of Chiaki</h2> by Florian Markl at version 2.1.1
+ 
+                         <p>This program is free software: you can redistribute it and/or modify
+--- a/gui/src/main.cpp
++++ b/gui/src/main.cpp
+@@ -73,10 +73,10 @@
+ 	qRegisterMetaType<ChiakiRegistEventType>();
+ 	qRegisterMetaType<ChiakiLogLevel>();
+ 
+-	QGuiApplication::setOrganizationName("Chiaki");
+-	QGuiApplication::setApplicationName("Chiaki");
++	QGuiApplication::setOrganizationName("SofaLink");
++	QGuiApplication::setApplicationName("SofaLink");
+ 	QGuiApplication::setApplicationVersion(CHIAKI_VERSION);
+-	QGuiApplication::setApplicationDisplayName("chiaki-ng");
++	QGuiApplication::setApplicationDisplayName("SofaLink");
+ #if defined(Q_OS_MACOS)
+ 	qputenv("QT_MTL_NO_TRANSACTION", "1");
+ #endif
+@@ -111,7 +111,7 @@
+ 		return 1;
+ 	}
+ 
+-    SDL_SetHint(SDL_HINT_APP_NAME, "chiaki-ng");
++    SDL_SetHint(SDL_HINT_APP_NAME, "SofaLink");
+ 
+ 	if(SDL_Init(SDL_INIT_AUDIO) < 0)
+ 	{
+@@ -183,7 +183,7 @@
+ 		settings.SetCurrentProfile(parser.value(profile_option));
+ 	Settings alt_settings(parser.isSet(profile_option) ? "" : settings.GetCurrentProfile());
+ 	if(!settings.GetCurrentProfile().isEmpty())
+-		QGuiApplication::setApplicationDisplayName(QString("chiaki-ng:%1").arg(settings.GetCurrentProfile()));
++		QGuiApplication::setApplicationDisplayName(QString("SofaLink:%1").arg(settings.GetCurrentProfile()));
+ 	bool use_alt_settings = false;
+ 	if(!parser.isSet(profile_option))
+ 		use_alt_settings = true;
